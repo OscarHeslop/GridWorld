@@ -56,17 +56,32 @@ def draw_board():
 
 #1 point to a pawn, 3 points to a knight or bishop, 5 points to a rook, and 9 points to the queen,
 
-def straight_check(start, end):
+def straight_check(start, end): #can move True - yes can move, False cannot move
+    obj_list = Pieces.pieces_list
+    x_min, x_max = sorted([start[0], end[0]])
+    y_min, y_max = sorted([start[1], end[1]])
+
 
     #check one variable changed 
     if (start[0] != end[0]) and (start[1] == end[1]):
-        print("allowed st")
-        return True
+        #LOOK AT EVERY INDEX FOR A PIECE, IF BLOCKING
+        for x in range(x_min + 1, x_max,  1):
+            for piece in (obj_list): 
+                if (piece.col == (x))and (piece.row == start[1]):
+                    print(f'obj in the way at {piece.col, end[0] + 1}')
+                    return False #NOT ALLOWED TO MOVE
+                
+
     elif (start[0] == end[0]) and (start[1] != end[1]): 
-        print("not allowed st")
-        return True
-    else:
-        return False
+        for y in range(y_min + 1, y_max,  1): #ignore one currently on
+            for piece in (obj_list): 
+                if (piece.row == (y))and (piece.col == start[0]):
+                    print(f'obj in way at {start[0] + 1, piece.row}')
+                    return False
+
+
+    #onec returns stops the function
+    return True
         
 def diagonal_check(start, end):
     #GRADIENT 
@@ -78,10 +93,8 @@ def diagonal_check(start, end):
     if x != 0:
         if (float(y / x ))**2 == float(1.0): #check the modulus, POS OR NEG
             print("allowed di")
-            return True 
-        else:
-            print("not allowed di")
-            return False
+            return True # gradient equal to one, pass
+    return False # not allowed to pass 
 
 
 
@@ -249,17 +262,12 @@ while running:
                             if sub == "S":
                                 if straight_check(start, end):
                                     piece_obj.col, piece_obj.row = end
-                                else:
-                                    print("not up")
-                                    
+  
                                     
                             elif sub == "D":
                                 if diagonal_check(start, end):
                                     piece_obj.col, piece_obj.row = end 
-                                else:
-                                    print("not up")
-                                
-                            
+
                     counter = 0 
                     selected_piece = None 
                     start = None
