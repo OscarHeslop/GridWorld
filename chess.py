@@ -56,32 +56,32 @@ def draw_board():
 
 #1 point to a pawn, 3 points to a knight or bishop, 5 points to a rook, and 9 points to the queen,
 
-class Move_check():
-    def __init__(self, start_pos, end_pos, current_pos):
-        self.start_pos = start_pos #self.start the self stores it, the input makes it temporarily stored
-        self.end_pos = end_pos
-        self.current_pos = current_pos
+def straight_check(start, end):
 
-    def straight(self):
-        start = self.start_pos
-        end = self.end_pos
-        #check one variable changed 
-        if (start[0] != end[0]) and (start[1] == end[1]):
-            return True
-        elif (start[0] == end[0]) and (start[1] != end[1]): 
-            return True
-            
+    #check one variable changed 
+    if (start[0] != end[0]) and (start[1] == end[1]):
+        print("allowed st")
+        return True
+    elif (start[0] == end[0]) and (start[1] != end[1]): 
+        print("not allowed st")
+        return True
+    else:
+        return False
+        
+def diagonal_check(start, end):
+    #GRADIENT 
+    y = start[1] - end[1]
+    x = start[0] - end[0]
 
-
-    def diagonal(self):
-        start = self.start_pos
-        end = self.end_pos
-        #GRADIENT 
-        y = start[1] - end[1]
-        x = start[0] - end[0]
-        #MAKING SURE IS DIAGONAL - GRADIENT 1 
-        if (float(y / x ))**2 == float(1): #check the modulus, POS OR NEG
+    
+    #MAKING SURE IS DIAGONAL - GRADIENT 1 
+    if x != 0:
+        if (float(y / x ))**2 == float(1.0): #check the modulus, POS OR NEG
+            print("allowed di")
             return True 
+        else:
+            print("not allowed di")
+            return False
 
 
 
@@ -95,23 +95,7 @@ class Pieces():
         self.row = 0 
         self.col = 0
         self.possible_moves = possible_moves
-        self.start_index = (0,0)
-        self.end_index = (0,0)# between 1 and 8 
-
-    def move_type(self):
-        for sub in list(self.possible_moves):
-            for i in range(len(sub)): #look at the tuples in each sub
-
-
-        
-                #S, D, L
-                if self.possible_moves == "S":
-                    if Move_check.straight(self):#gives True  / False
-                        self.col, self.row = self.end_index #update the pos 
-                        
-                if self.possible_moves == "D":
-                    if Move_check.diagonal(self):
-                        self.col, self.row = self.end_index #update the pos
+# between 1 and 8 
 
     def move(self, new_col, new_row): #x, y
         self.row = new_row 
@@ -156,7 +140,7 @@ knight1.add_to_board(2, 3) #each one is a new instance
 knight2 = Pieces("knight", "wN.svg",("L"))
 knight2.add_to_board(3, 4)
 
- 
+
 queen = Pieces("queen", "wQ.svg",("D","S")) #diagonal, straight
 queen.add_to_board(4, 5)
 
@@ -202,6 +186,8 @@ y = None
 counter = 0
 selected_piece = None
 running = True
+start = None
+end = None
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -211,7 +197,7 @@ while running:
         # ! ALL INPUTS CHECKED HERE
         #-------------------------------
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:  # 1 means Left Click
+            if event.button == 1:  # 1 means LEFT PRESSED / CLICKED
                 # Get the raw pixel coordinates (e.g., x=450, y=120)
                 mouse_x, mouse_y = event.pos
                 
@@ -238,16 +224,51 @@ while running:
                             selected_piece = i
                             counter += 1 
 
+                    #picked a piece
+                    start = (clicked_col, clicked_row)
+
                     print(clicked_col, clicked_row)
+                    print(selected_piece)
 
                             
-
-
+                #------------------------
+                # ! MOVING THE PIECE
+                #------------------------
                 elif selected_piece != None and counter ==1:
                     #not search for piece
-                    Pieces.pieces_list[selected_piece].move(clicked_col, clicked_row)#holds self, #updates the pos
+                    piece_obj = Pieces.pieces_list[selected_piece]
+
+                    end = (clicked_col, clicked_row)
+
+                    move_allow = False
+
+                    for sub in list(piece_obj.possible_moves):
+                             #look at the tuples in each sub
+                            print(sub)
+                            #S, D, L
+                            if sub == "S":
+                                if straight_check(start, end):
+                                    piece_obj.col, piece_obj.row = end
+                                else:
+                                    print("not up")
+                                    
+                                    
+                            elif sub == "D":
+                                if diagonal_check(start, end):
+                                    piece_obj.col, piece_obj.row = end 
+                                else:
+                                    print("not up")
+                                
+                            
                     counter = 0 
                     selected_piece = None 
+                    start = None
+
+
+                    #check if it follows move
+
+
+                    
 
 
                     
@@ -269,7 +290,7 @@ while running:
 
 
 
- 
+
     #SCREEN DISPLAY 
     draw_board()    
     if (x != None) and (y != None):
@@ -281,11 +302,12 @@ while running:
     
     
 
-   
+
 
 
 
     pygame.display.flip()
+
 
 # Clean exit
 pygame.quit()
