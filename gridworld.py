@@ -80,7 +80,7 @@ while running:
     #background - black 
     
     grid_colour = "#32a87d"
-    bg_colour = (50, 255, 144)
+    bg_colour = (255, 255, 144)
 
     screen.fill(bg_colour)  #WHITE (RGB
     draw_grid(grid_colour)
@@ -97,3 +97,13 @@ while running:
 # Clean exit
 pygame.quit()
 sys.exit()
+
+'''
+For me
+
+SEE Repo currently linked
+git remote -v
+
+Ovverrides current git with new
+git remote set-url origin https://github.com/OscarHeslop/GridWorld.git
+'''
