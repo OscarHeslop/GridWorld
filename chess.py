@@ -116,7 +116,7 @@ def take_piece(start, end):
             #piece has same index as obj 
 
             #remove object from list 
-            (Pieces.pieces_list).remove(pieces_list.index(piece))
+            (Pieces.pieces_list).remove(piece)
 
             print(f"Piece {piece.name} removed at {piece.col, piece.row}")
 
@@ -286,22 +286,27 @@ while running:
                             if sub == "S":
                                 if straight_check(start, end):
                                     piece_obj.col, piece_obj.row = end
+
+                                    take_piece(start, end) #only take piece if move done
+
+    
   
                                     
                             elif sub == "D":
                                 if diagonal_check(start, end):
                                     piece_obj.col, piece_obj.row = end 
 
+                                    take_piece(start, end) #only take piece if move done
+
+
+
+                    
+
+
                     counter = 0 
                     selected_piece = None 
                     start = None     
 
-
-                    #---------------------
-                    # ! REMOVING PIECE
-                    #take_piece(start, end)
-
-                    #---------------------
 
                     
 
