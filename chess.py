@@ -61,6 +61,8 @@ def straight_check(start, end): #can move True - yes can move, False cannot move
     x_min, x_max = sorted([start[0], end[0]])
     y_min, y_max = sorted([start[1], end[1]])
 
+    if start[0] != end[0] and start[1] != end[1]: #no diagonal
+        return False
 
     #check one variable changed 
     if (start[0] != end[0]) and (start[1] == end[1]):
@@ -68,7 +70,7 @@ def straight_check(start, end): #can move True - yes can move, False cannot move
         for x in range(x_min + 1, x_max,  1):
             for piece in (obj_list): 
                 if (piece.col == (x))and (piece.row == start[1]):
-                    print(f'obj in the way at {piece.col, end[0] + 1}')
+                    print(f'obj in the way at {piece.col + 1, end[0] + 1}')
                     return False #NOT ALLOWED TO MOVE
                 
 
@@ -76,25 +78,47 @@ def straight_check(start, end): #can move True - yes can move, False cannot move
         for y in range(y_min + 1, y_max,  1): #ignore one currently on
             for piece in (obj_list): 
                 if (piece.row == (y))and (piece.col == start[0]):
-                    print(f'obj in way at {start[0] + 1, piece.row}')
+                    print(f'obj in way at {start[0] + 1, piece.row + 1}')
                     return False
+    
 
 
     #onec returns stops the function
     return True
         
 def diagonal_check(start, end):
-    #GRADIENT 
-    y = start[1] - end[1]
-    x = start[0] - end[0]
+    dx = end[0] - start[0]
+    dy = end[1] - start[1]
 
-    
-    #MAKING SURE IS DIAGONAL - GRADIENT 1 
-    if x != 0:
-        if (float(y / x ))**2 == float(1.0): #check the modulus, POS OR NEG
-            print("allowed di")
-            return True # gradient equal to one, pass
-    return False # not allowed to pass 
+    # 1. reject non-diagonal moves and "no move"
+    if dx == 0 or abs(dx) != abs(dy):
+        return False
+
+    # 2. direction (safe now, dx and dy are never 0)
+    x_step = 1 if dx > 0 else -1
+    y_step = 1 if dy > 0 else -1
+
+    # 3. check each square between start and end
+    for i in range(1, abs(dx)):
+        x = start[0] + i * x_step
+        y = start[1] + i * y_step
+        for piece in Pieces.pieces_list:
+            if piece.col == x and piece.row == y:
+                return False  # blocked
+
+    return True
+
+
+def take_piece(start, end):
+    pieces_list = Pieces.pieces_list #obj 
+    for piece in pieces_list:
+        if (piece.col == end[0]) and (piece.row == end[1]):
+            #piece has same index as obj 
+
+            #remove object from list 
+            (Pieces.pieces_list).remove(pieces_list.index(piece))
+
+            print(f"Piece {piece.name} removed at {piece.col, piece.row}")
 
 
 
@@ -245,7 +269,7 @@ while running:
 
                             
                 #------------------------
-                # ! MOVING THE PIECE
+                # ! MOVING THE PIECE (MAIN LOOP)
                 #------------------------
                 elif selected_piece != None and counter ==1:
                     #not search for piece
@@ -270,11 +294,14 @@ while running:
 
                     counter = 0 
                     selected_piece = None 
-                    start = None
+                    start = None     
 
 
-                    #check if it follows move
+                    #---------------------
+                    # ! REMOVING PIECE
+                    #take_piece(start, end)
 
+                    #---------------------
 
                     
 
