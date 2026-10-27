@@ -99,7 +99,10 @@ def draw_blocks():
             pygame.draw.rect(screen, pygame.Color(black), (block_x, block_y, square_size, square_size))
         
 
-
+# ! -------------------------
+# ! AGENT FUNCS
+# ! -------------------------
+agent_col, agent_row = None, None
 
 agent_colour = (0,255,0) # green
 def draw_agent(col, row): # x, y 
@@ -131,12 +134,36 @@ def binary_grid():
 
     print(grid)
 
+
+
+
+# ! -------------------------
+# ! Q LEARNING 
+# ! -------------------------
+
+
+import random
+def random_move(agent_col, agent_row):
+    move_list = {"left":[-1,0],"right":[1,0],"up":[0,1],"down":[0,-1]}
+    key = random.choice(list(move_list.keys()))
+    move = (move_list[key])
+
+    
+    #check if the move is valid 
+    if (ROWS-1) >= agent_col + int(move[0])>=0 and (COLS - 1)>=(agent_row + int(move[1]))>= 0:
+        print(f'New move to :{agent_col + move[0]}, {agent_row + move[1]}')
+        new_col, new_row =agent_col + move[0], agent_row + move[1]
+        return new_col, new_row
+    else:
+        return random_move(agent_col, agent_row)
+    
 #------------------------------
 #FOR LOOP
 #-----------------------------
+# ! GAME LOOP VARIABLES
 selected_type = "black"
 run_RL = False
-
+last_move = 0
 
 running = True
 while running:
@@ -220,6 +247,10 @@ while running:
                  
                 run_RL = True 
 
+                if (start_col != None) and (start_row != None):
+                    agent_col, agent_row = start_col, start_row
+
+
 
 
 
@@ -246,8 +277,17 @@ while running:
     draw_blocks()
 
     if run_RL == True:
-        if (start_col != None) and (start_row != None):
-            draw_agent(start_col, start_row)
+        if (agent_col != None) and (agent_row != None):
+            draw_agent(agent_col, agent_row)
+
+            #only do after 3seconds
+            time_delay = 1000 # millisec
+            time_since_last_move = pygame.time.get_ticks() - last_move
+            if time_since_last_move >= time_delay:
+                agent_col, agent_row = random_move(agent_col, agent_row)
+                last_move = pygame.time.get_ticks()
+            
+
 
     
 
