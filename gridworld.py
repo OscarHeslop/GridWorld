@@ -25,14 +25,8 @@ pygame.display.set_caption("Oscars RL Chess")
 #-----------------------------
 button = pygame.Rect(600, 100, 150, 50)
 
-
-
-def binary_grid():
-    arr = np.zeros(ROWS, COLS)
-    print(arr)
-    return arr
-
-
+# ! CREATING VARS 
+start_col, start_row = None, None
 
 
 class Block():
@@ -104,10 +98,44 @@ def draw_blocks():
 
             pygame.draw.rect(screen, pygame.Color(black), (block_x, block_y, square_size, square_size))
         
+
+
+
+agent_colour = (0,255,0) # green
+def draw_agent(col, row): # x, y 
+    
+    #a circle
+    center_x = col * square_size + square_size // 2
+    center_y = row * square_size + square_size // 2
+    radius = square_size // 3
+    pygame.draw.circle(screen, agent_colour, (center_x, center_y), radius)
+
+
+
+def binary_grid():
+    grid = np.zeros((COLS, ROWS), dtype="object") # numpy normally not built for strings, makes slower 
+
+
+    for block in Block.block_arr:
+        
+        col, row, block_type= block #x, y
+        if block_type == "s":
+            grid[col, row] = "s"
+
+        elif block_type == "e":
+            grid[col, row] = "e"
+            
+
+        else: #black
+            grid[col, row] = "1"
+
+    print(grid)
+
 #------------------------------
 #FOR LOOP
 #-----------------------------
 selected_type = "black"
+run_RL = False
 
 
 running = True
@@ -115,16 +143,13 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-
-        #-------------------------------
-        # INPUT CHECK=
-        #-------------------------------
-
-
-
+        # ! --------------------------------
+        # ! KEYBOARD PRESS DETECTION
+        # ! --------------------------------
         #--------------------------------
         #1)DETECTING KEYBOARD PRESSES
         #--------------------------------
+
 
 
         if event.type == pygame.KEYDOWN:
@@ -156,6 +181,7 @@ while running:
 
             if selected_type==  "s" and not start_exists:
                 Block.add(clicked_col, clicked_row, "s")
+                start_col, start_row = clicked_col, clicked_row
             elif selected_type==  "e" and not end_exists:
                 Block.add(clicked_col, clicked_row, "e")
             
@@ -182,6 +208,20 @@ while running:
                         Block.block_arr.remove(Block.block_arr[i])
 
                         print(Block.block_arr)
+        
+        #--------------------------------
+        # ! RUNNING GAME - ENTER PRESSED
+        #--------------------------------
+        
+        if event.type == pygame.KEYDOWN:
+
+             if event.key == pygame.K_RETURN: # ! ENTER KEY PRESSED
+                grid = binary_grid() #creates binary grid of all obstacles
+                 
+                run_RL = True 
+
+
+
 
 
 
@@ -200,7 +240,18 @@ while running:
     screen.fill(bg_colour)  #WHITE (RGB
     draw_grid(grid_colour)
 
+
+
+
     draw_blocks()
+
+    if run_RL == True:
+        if (start_col != None) and (start_row != None):
+            draw_agent(start_col, start_row)
+
+    
+
+
 
 
 
