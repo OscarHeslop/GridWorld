@@ -13,7 +13,7 @@ import pygame_gui
 
 pygame.init()
 screen_width, screen_height = 800,800
-ROWS, COLS = 8, 8
+ROWS, COLS = 4,4
 square_size = int(screen_width / ROWS)
 
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -25,6 +25,36 @@ pygame.display.set_caption("Oscars RL Chess")
 #-----------------------------
 button = pygame.Rect(600, 100, 150, 50)
 
+
+
+def binary_grid():
+    arr = np.zeros(ROWS, COLS)
+    print(arr)
+    return arr
+
+
+
+
+class Block():
+    #GLOBAL VARIABLES
+    block_arr = [] 
+    
+    def add(clicked_col, clicked_row,type): #x, y
+        if type=="s":
+            Block.block_arr.append((clicked_col, clicked_row, "s")) #start
+        elif type=="e":
+            Block.block_arr.append((clicked_col, clicked_row, "e")) #end
+        else:
+            Block.block_arr.append((clicked_col, clicked_row, "h")) #hole
+
+
+        print(clicked_col, clicked_row)
+        print(Block.block_arr)
+    def remove(clicked_col, clicked_row): #x, y
+        for block in Block.block_arr:
+            if block[0] == clicked_col and block[1] == clicked_row:
+                Block.block_arr.remove(block)
+                break
 
 
 
@@ -47,9 +77,39 @@ def draw_grid(colour):
 
 
 
+
+    #add end
+num_start = 0 
+num_end = 0
+def draw_blocks():
+    global num_start, num_end
+    red = (255, 0, 0)#pygame.color
+    blue = (0,0,255)
+    black = (0,0,0 )
+    for block in Block.block_arr:
+        col, row, block_type = block
+
+        block_x = (col) * square_size
+        block_y = (row) * square_size
+
+        if block_type == "s":#ONE START MAX
+            pygame.draw.rect(screen, pygame.Color(blue), (block_x, block_y, square_size, square_size))
+            block_type = "b"
+
+
+        elif block_type == "e" and int(num_end) == 0:
+            pygame.draw.rect(screen, pygame.Color(red), (block_x, block_y, square_size, square_size))
+            block_type = "b"
+        else:
+
+            pygame.draw.rect(screen, pygame.Color(black), (block_x, block_y, square_size, square_size))
+        
 #------------------------------
 #FOR LOOP
 #-----------------------------
+selected_type = "black"
+
+
 running = True
 while running:
     for event in pygame.event.get():
@@ -59,16 +119,70 @@ while running:
         #-------------------------------
         # INPUT CHECK=
         #-------------------------------
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1: 
-                mouse_x, mouse_y = event.pos
+
+
+
+        #--------------------------------
+        #1)DETECTING KEYBOARD PRESSES
+        #--------------------------------
+
+
+        if event.type == pygame.KEYDOWN:
+
+            #check if start and end already exist 
+            if event.key == pygame.K_s :
+                selected_type= "s"
+            elif event.key == pygame.K_e:
+                selected_type = "e"
+            else:
+                selected_type= "h"
+
+
+
+        #--------------------------------
+        #2)DECTECTING MOUSE PRESSES (ADDING BLOCK)
+        #--------------------------------
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            print(selected_type)
+
+
+            start_exists = any(b[2] == "s" for b in Block.block_arr)#True means exists
+            end_exists   = any(i[2] == "e" for i in Block.block_arr)
+
+            mouse_x, mouse_y = event.pos
+
+            clicked_col = mouse_x // square_size
+            clicked_row = mouse_y // square_size
+
+            if selected_type==  "s" and not start_exists:
+                Block.add(clicked_col, clicked_row, "s")
+            elif selected_type==  "e" and not end_exists:
+                Block.add(clicked_col, clicked_row, "e")
+            
+            #START NOT EXIST
+            else:
+                Block.add(clicked_col, clicked_row, "black")
                 
-                clicked_col = int(mouse_x // square_size)                 # (between 1 and 8)
-                clicked_row = int(mouse_y // square_size)   
+  
+        #--------------------------------
+        #3)DECTECTING MOUSE PRESSES (REMOVING BLOCK)
+        #--------------------------------
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 3: 
+
+                mouse_x, mouse_y = event.pos
+                clicked_col = mouse_x // square_size
+                clicked_row = mouse_y // square_size
 
 
-                x = (clicked_col) * square_size
-                y = (clicked_row) * square_size
+
+                for i, block in enumerate(Block.block_arr):
+                    if block[0] == clicked_col and block[1] == clicked_row:
+                                
+                        Block.block_arr.remove(Block.block_arr[i])
+
+                        print(Block.block_arr)
+
 
 
 
@@ -82,8 +196,11 @@ while running:
     grid_colour = "#32a87d"
     bg_colour = (255, 255, 144)
 
+
     screen.fill(bg_colour)  #WHITE (RGB
     draw_grid(grid_colour)
+
+    draw_blocks()
 
 
 
